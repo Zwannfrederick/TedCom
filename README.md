@@ -1,2 +1,2 @@
-# mobile_project
+# TedCom
 Mobil Programlama dersi için proje reposudur

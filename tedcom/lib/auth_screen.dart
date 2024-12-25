@@ -164,11 +164,11 @@ class LoginForm extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             IconButton(
-              icon: Image.asset('assets/google_icon.png'),
+              icon: Image.network("https://cdn1.iconfinder.com/data/icons/google-s-logo/150/Google_Icons-09-512.png",scale: 6,),
               onPressed: () {},
             ),
             IconButton(
-              icon: Image.asset('assets/facebook_icon.png'),
+              icon: Image.network("https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/2021_Facebook_icon.svg/2048px-2021_Facebook_icon.svg.png", scale: 36,),
               onPressed: () {},
             ),
           ],
@@ -220,11 +220,11 @@ class SignUpForm extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             IconButton(
-              icon: Image.asset('assets/google_icon.png'),
+              icon: Image.network("https://cdn1.iconfinder.com/data/icons/google-s-logo/150/Google_Icons-09-512.png",scale: 6,),
               onPressed: () {},
             ),
             IconButton(
-              icon: Image.asset('assets/facebook_icon.png'),
+              icon: Image.network("https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/2021_Facebook_icon.svg/2048px-2021_Facebook_icon.svg.png", scale: 36,),
               onPressed: () {},
             ),
           ],

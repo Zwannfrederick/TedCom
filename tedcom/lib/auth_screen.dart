@@ -1,4 +1,3 @@
-import 'dart:ffi';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'home_screen.dart';
@@ -65,7 +64,7 @@ class _AuthScreenState extends State<AuthScreen> {
                           // Üstteki kırmızı ve beyaz çubuklar
                           Container(
                             width: 320,
-                            height: 52,
+                            height: 54,
                             decoration: BoxDecoration(
                               color: Color.fromARGB(146, 236, 187, 187),
                               borderRadius: BorderRadius.circular(25),
@@ -80,14 +79,14 @@ class _AuthScreenState extends State<AuthScreen> {
                                 AnimatedPositioned(
                                   duration: const Duration(milliseconds: 300),
                                   left: isLogin
-                                      ? 0
+                                      ? -2
                                       : 150,
                                   child: Container(
                                     width: 160,
                                     height: 50,
                                     decoration: BoxDecoration(
                                       color: Colors.red.shade900,
-                                      borderRadius: BorderRadius.circular(25),
+                                      borderRadius: BorderRadius.circular(30),
                                     ),
                                   ),
                                 ),

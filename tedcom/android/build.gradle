@@ -1,3 +1,15 @@
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        // Gradle ve Google Services eklentisi
+        classpath 'com.android.tools.build:gradle:8.0.2' // En son sürümü kontrol edin
+        classpath 'com.google.gms:google-services:4.4.2' // Firebase eklentisi
+    }
+}
+
 allprojects {
     repositories {
         google()
@@ -5,14 +17,18 @@ allprojects {
     }
 }
 
+// Root Project Build Directory
 rootProject.buildDir = "../build"
+
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
 }
+
 subprojects {
     project.evaluationDependsOn(":app")
 }
 
+// Clean Task
 tasks.register("clean", Delete) {
     delete rootProject.buildDir
 }

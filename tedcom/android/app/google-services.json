@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "588330050413",
+    "project_id": "mobil-programlama-final-1a612",
+    "storage_bucket": "mobil-programlama-final-1a612.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:588330050413:android:4cc6498208cd59fd6b3064",
+        "android_client_info": {
+          "package_name": "com.example.tedcom"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAXbpkpujdwTcJlQO95otBqAdcYOXGnJms"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

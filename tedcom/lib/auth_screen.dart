@@ -1,13 +1,15 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'home_screen.dart';
 
 class AuthScreen extends StatefulWidget {
   @override
-  _AuthScreenState createState() => _AuthScreenState();
+  AuthScreenState createState() => AuthScreenState();
 }
 
-class _AuthScreenState extends State<AuthScreen> {
+class AuthScreenState extends State<AuthScreen> {
   bool isLogin = true;
 
   @override
@@ -57,7 +59,6 @@ class _AuthScreenState extends State<AuthScreen> {
                   ),
                   child: Column(
                     children: [
-
                       // Log In ve Sign Up düğmelerinin bulunduğu alan
                       Stack(
                         children: [
@@ -93,6 +94,8 @@ class _AuthScreenState extends State<AuthScreen> {
                               ],
                             ),
                           ),
+
+
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -114,8 +117,8 @@ class _AuthScreenState extends State<AuthScreen> {
                                 ),
                               ),
 
-                              SizedBox(width: 70,height: 50),
-
+                              SizedBox(width: 70, height: 50),
+                              
                               TextButton(
                                 onPressed: () {
                                   setState(() {
@@ -139,7 +142,7 @@ class _AuthScreenState extends State<AuthScreen> {
 
                       // Formu gösteren widget
                       SizedBox(height: 20),
-
+                      
                       AnimatedSwitcher(
                         duration: Duration(milliseconds: 300),
                         child: isLogin ? LoginForm() : SignUpForm(),
@@ -156,20 +159,47 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 }
 
-// LOGİN FORMU
-class LoginForm extends StatelessWidget {
+// LOGIN FORMU
+class LoginForm extends StatefulWidget {
+  @override
+  State<LoginForm> createState() => _LoginFormState();
+}
+
+class _LoginFormState extends State<LoginForm> {
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+
+  Future<void> _loginUser() async {
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+      );
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => HomeScreen()),
+      );
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Login Failed: $error')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
       key: ValueKey(1),
       children: [
-        const TextField(
+        TextField(
+          controller: _emailController,
           decoration: InputDecoration(
             labelText: 'E-mail',
           ),
         ),
         SizedBox(height: 10),
-        const TextField(
+        TextField(
+          controller: _passwordController,
           decoration: InputDecoration(
             labelText: 'Şifre',
           ),
@@ -183,39 +213,14 @@ class LoginForm extends StatelessWidget {
           ),
         ),
         ElevatedButton(
-          onPressed: () {
-            // HomeScreen'e geçiş işlemi eklendi
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => HomeScreen()),
-            );
-          },
+          onPressed: _loginUser,
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.red.shade800, // Düğme rengi
+            backgroundColor: Colors.red.shade800,
           ),
           child: const Text(
             'Log In',
             style: TextStyle(color: Colors.white),
           ),
-        ),
-        SizedBox(height: 15),
-        Text("OR"),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            IconButton(
-              icon: Image.network(
-                  "https://cdn1.iconfinder.com/data/icons/google-s-logo/150/Google_Icons-09-512.png",
-                  scale: 10),
-              onPressed: () {},
-            ),
-            IconButton(
-              icon: Image.network(
-                  "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/2021_Facebook_icon.svg/2048px-2021_Facebook_icon.svg.png",
-                  scale: 60),
-              onPressed: () {},
-            ),
-          ],
         ),
       ],
     );
@@ -223,32 +228,82 @@ class LoginForm extends StatelessWidget {
 }
 
 // SIGNUP FORMU
-class SignUpForm extends StatelessWidget {
+class SignUpForm extends StatefulWidget {
+  @override
+  State<SignUpForm> createState() => _SignUpFormState();
+}
+
+class _SignUpFormState extends State<SignUpForm> {
+  final _nameController = TextEditingController(); // Yeni eklendi
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
+
+  Future<void> _signUpUser() async {
+    if (_passwordController.text != _confirmPasswordController.text) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Passwords do not match')),
+      );
+      return;
+    }
+    try {
+      // Kullanıcıyı Firebase Authentication'a kaydet
+      UserCredential userCredential = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+      );
+
+      // Firestore'da kullanıcı bilgilerini sakla
+      await FirebaseFirestore.instance
+          .collection('users') // 'users' koleksiyonuna kayıt yap
+          .doc(userCredential.user!.uid) // UID ile belge oluştur
+          .set({
+        'name': _nameController.text.trim(), // İsim ve soy isim
+        'email': _emailController.text.trim(), // E-posta
+        'createdAt': DateTime.now(), // Oluşturulma tarihi
+      });
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => HomeScreen()),
+      );
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Sign Up Failed: $error')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
       key: ValueKey(2),
       children: [
-        const TextField(
+        TextField(
+          controller: _nameController, // Yeni eklenen alan
+          decoration: InputDecoration(
+            labelText: 'İsim Soy İsim',
+          ),
+        ),
+        SizedBox(height: 10),
+        TextField(
+          controller: _emailController,
           decoration: InputDecoration(
             labelText: 'E-mail',
           ),
         ),
         SizedBox(height: 10),
-        const TextField(
-          decoration: InputDecoration(
-            labelText: 'İsim Soyisim',
-          ),
-        ),
-        SizedBox(height: 10),
-        const TextField(
+        TextField(
+          controller: _passwordController,
           decoration: InputDecoration(
             labelText: 'Şifre',
           ),
           obscureText: true,
         ),
         SizedBox(height: 10),
-        const TextField(
+        TextField(
+          controller: _confirmPasswordController,
           decoration: InputDecoration(
             labelText: 'Şifre Tekrar',
           ),
@@ -256,39 +311,14 @@ class SignUpForm extends StatelessWidget {
         ),
         SizedBox(height: 20),
         ElevatedButton(
-          onPressed: () {
-            // HomeScreen'e geçiş işlemi eklendi
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => HomeScreen()),
-            );
-          },
+          onPressed: _signUpUser,
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.red.shade800, // Düğme rengi
+            backgroundColor: Colors.red.shade800,
           ),
           child: const Text(
             'Sign Up',
             style: TextStyle(color: Colors.white),
           ),
-        ),
-        SizedBox(height: 15),
-        Text("OR"),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            IconButton(
-              icon: Image.network(
-                  "https://cdn1.iconfinder.com/data/icons/google-s-logo/150/Google_Icons-09-512.png",
-                  scale: 10),
-              onPressed: () {},
-            ),
-            IconButton(
-              icon: Image.network(
-                  "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/2021_Facebook_icon.svg/2048px-2021_Facebook_icon.svg.png",
-                  scale: 60),
-              onPressed: () {},
-            ),
-          ],
         ),
       ],
     );

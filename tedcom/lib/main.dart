@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'auth_screen.dart'; // auth_screen.dart dosyasını içe aktarın
+import 'package:firebase_core/firebase_core.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(); // Firebase'i başlatıyoruz
   runApp(MyApp());
 }
 

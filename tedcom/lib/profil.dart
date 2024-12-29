@@ -1,71 +1,92 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ProfilScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color.fromARGB(255, 252, 235, 200),
+        backgroundColor: const Color.fromARGB(255, 252, 235, 200),
         elevation: 0,
         centerTitle: true,
         title: const Text(
           'Profil',
           style: TextStyle(color: Colors.red, fontSize: 22),
         ),
-        iconTheme: IconThemeData(color: Colors.black),
+        iconTheme: const IconThemeData(color: Colors.black),
       ),
-
       body: Column(
         children: [
           // Üstteki Kullanıcı Bilgisi
           Container(
+            //color: const Color.fromARGB(255, 252, 235, 200),
             decoration: const BoxDecoration(
               color: Color.fromARGB(255, 252, 235, 200),
               border: Border.symmetric(
                 horizontal: BorderSide(
                   color: Colors.black,
                   width: 2,
-                 ),
                 ),
               ),
-
-            padding: EdgeInsets.symmetric(vertical: 20, horizontal: 130),
-            //color: Color.fromARGB(255, 252, 235, 200),
-            child: const Column(
+            ),
+            
+            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 170),
+            child: Column(
               children: [
-                Icon(
+                const Icon(
                   Icons.account_circle,
                   size: 80,
                   color: Colors.black54,
                 ),
-                SizedBox(height: 10),
-                Text(
-                  '(KULLANICI İSMİ)',
-                  style: TextStyle(
-                    color: Colors.red,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                const SizedBox(height: 10),
+                FutureBuilder<DocumentSnapshot>(
+                  future: _getUserData(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const CircularProgressIndicator(); // Yükleniyor animasyonu
+                    }
+                    if (snapshot.hasError) {
+                      return const Text('Bir hata oluştu');
+                    }
+                    if (!snapshot.hasData || !snapshot.data!.exists) {
+                      return const Text('Kullanıcı bilgisi bulunamadı');
+                    }
+
+                    // Kullanıcı ismini alıyoruz
+                    String userName = snapshot.data!.get('name') ?? 'Bilinmiyor';
+
+                    return Text(
+                      userName,
+                      style: const TextStyle(
+                        color: Colors.red,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    );
+                  },
                 ),
               ],
             ),
           ),
-          Divider(thickness: 1, height: 1),
+          const Divider(thickness: 1, height: 1),
           // Bilgi Kartları
           Expanded(
             child: ListView(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               children: [
                 _buildInfoCard(
                   context,
                   title: 'E-mail:',
-                  content: 'ornek@gmail.com',
+                  content: FirebaseAuth.instance.currentUser!.email ?? 'Bilinmiyor',
                 ),
                 _buildInfoCard(
                   context,
                   title: 'Ana Sektör:',
-                  content: 'Savunma Sanayi UZUN SATIR UZUN SATIR UZUN UZUN SATIR SATIR SATIR UZUN SATIR BÖYLE OLUYOR',
+                  content: 'Savunma Sanayi UZUN SATIR UZUN SATIR UZUN SATIR UZUN SATIR',
                 ),
+
+                // BAŞLANGIÇTA BU BİLGİLER BOŞ OLACAK KAYIT OLUNDUKTAN SONRA KULLANICIDAN OPSİYONEL OLARAK ALINARAK VERİ TABANINA KAYDEDİLECEK??
                 _buildInfoCard(
                   context,
                   title: 'Telefon Numarası:',
@@ -89,12 +110,15 @@ class ProfilScreen extends StatelessWidget {
     );
   }
 
-  // Bilgi Kartı Yapısı
-  Widget _buildInfoCard(BuildContext context,
-      {required String title, required String content}) {
+  Future<DocumentSnapshot> _getUserData() async {
+    String uid = FirebaseAuth.instance.currentUser!.uid;
+    return await FirebaseFirestore.instance.collection('users').doc(uid).get();
+  }
+
+  Widget _buildInfoCard(BuildContext context, {required String title, required String content}) {
     return Card(
-      margin: EdgeInsets.symmetric(vertical: 8),
-      color: Color.fromARGB(255, 252, 235, 200),
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      color: const Color.fromARGB(255, 252, 235, 200),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
@@ -104,7 +128,7 @@ class ProfilScreen extends StatelessWidget {
             children: [
               TextSpan(
                 text: title,
-                style: TextStyle(
+                style: const TextStyle(
                   color: Colors.red,
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
@@ -112,7 +136,7 @@ class ProfilScreen extends StatelessWidget {
               ),
               TextSpan(
                 text: ' $content',
-                style: TextStyle(
+                style: const TextStyle(
                   color: Colors.black,
                   fontSize: 16,
                 ),
@@ -121,7 +145,7 @@ class ProfilScreen extends StatelessWidget {
           ),
         ),
         trailing: IconButton(
-          icon: Icon(Icons.edit, color: Colors.black54),
+          icon: const Icon(Icons.edit, color: Colors.black54),
           onPressed: () {
             _showEditDialog(context, title, content);
           },
@@ -130,7 +154,6 @@ class ProfilScreen extends StatelessWidget {
     );
   }
 
-  // Bilgi Düzenleme Diyaloğu
   void _showEditDialog(BuildContext context, String title, String content) {
     TextEditingController _controller = TextEditingController(text: content);
 
@@ -141,22 +164,21 @@ class ProfilScreen extends StatelessWidget {
         content: TextField(
           controller: _controller,
           decoration: InputDecoration(
-            border: OutlineInputBorder(),
+            border: const OutlineInputBorder(),
             hintText: 'Yeni $title',
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('İptal'),
+            child: const Text('İptal'),
           ),
           TextButton(
             onPressed: () {
-              // Burada yeni veriyi işleme kısmı yapılabilir
               print('Yeni $title: ${_controller.text}');
               Navigator.pop(context);
             },
-            child: Text('Kaydet'),
+            child: const Text('Kaydet'),
           ),
         ],
       ),

@@ -283,7 +283,7 @@ class _SignUpFormState extends State<SignUpForm> {
         TextField(
           controller: _nameController, // Yeni eklenen alan
           decoration: InputDecoration(
-            labelText: 'İsim Soy İsim',
+            labelText: 'İsim Soyİsim',
           ),
         ),
         SizedBox(height: 10),

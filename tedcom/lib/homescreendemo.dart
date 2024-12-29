@@ -26,10 +26,7 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user != null) {
-        final doc = await FirebaseFirestore.instance
-            .collection('users')
-            .doc(user.uid)
-            .get();
+        final doc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
         setState(() {
           userName = doc['name']; // Firestore'dan isim bilgisini al
           _isLoading = false;
@@ -66,8 +63,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final pages = [
-      HomeContent(
-          userName: userName, isLoading: _isLoading), // Ana sayfa içeriği
+      HomeContent(userName: userName, isLoading: _isLoading), // Ana sayfa içeriği
       TedariklerScreen(), // Tedarikler sayfası
       BildirimlerScreen(), // Bildirimler sayfası
       ProfilScreen(), // Profil sayfası
@@ -84,8 +80,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => TedarikOlusturGuncelleScreen(
-                        onTedarikEkle: _onTedarikEkle),
+                    builder: (context) =>
+                        TedarikOlusturGuncelleScreen(onTedarikEkle: _onTedarikEkle),
                   ),
                 );
               },
@@ -96,10 +92,8 @@ class _HomeScreenState extends State<HomeScreen> {
       bottomNavigationBar: BottomNavigationBar(
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Anasayfa'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.card_travel), label: 'Tedarikler'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.notifications), label: 'Bildirimler'),
+          BottomNavigationBarItem(icon: Icon(Icons.card_travel), label: 'Tedarikler'),
+          BottomNavigationBarItem(icon: Icon(Icons.notifications), label: 'Bildirimler'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profil'),
         ],
         currentIndex: _selectedIndex,
@@ -140,8 +134,7 @@ class _HomeContentState extends State<HomeContent> {
             child: TextField(
               onChanged: (value) {
                 setState(() {
-                  searchQuery =
-                      value.toLowerCase(); // Sorguyu küçük harfe çevir
+                  searchQuery = value.toLowerCase(); // Sorguyu küçük harfe çevir
                 });
               },
               decoration: InputDecoration(
@@ -179,65 +172,9 @@ class _HomeContentState extends State<HomeContent> {
               final tedarik = tedarikler[index];
               return Card(
                 child: ListTile(
-                  leading: Icon(
-                    Icons.inventory, // Kutu simgesi
-                    color: Colors.red, // Kırmızı renk
-                  ),
-                  title: RichText(
-                    text: TextSpan(
-                      children: [
-                        TextSpan(
-                          text: 'Tedarik İsmi: ',
-                          style: TextStyle(
-                            color: Colors.red,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        TextSpan(
-                          text: tedarik['isim'],
-                          style: TextStyle(color: Colors.black),
-                        ),
-                      ],
-                    ),
-                  ),
-                  
-                  subtitle: RichText(
-                    text: TextSpan(
-                      children: [
-                        const TextSpan(
-                          text: 'Tedarik Sektörü: ',
-                          style: TextStyle(
-                            color: Colors.red,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        TextSpan(
-                          text: tedarik['sektor'],
-                          style: TextStyle(color: Colors.black),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  trailing: RichText(
-                    text: TextSpan(
-                      children: [
-                        const TextSpan(
-                          text: 'Ekleyen: ',
-                          style: TextStyle(
-                            color: Colors.red,
-                            fontWeight: FontWeight.bold,
-                          ), 
-                        ),
-                        TextSpan(
-                          text: tedarik['ekleyen'],
-                          style: TextStyle(color: Colors.black),
-                        )
-                      ],
-                    ),
-                  ),
-                
-                
+                  title: Text(tedarik['isim']),
+                  subtitle: Text(tedarik['sektor']),
+                  trailing: Text('Ekleyen: ${tedarik['ekleyen']}'),
                 ),
               );
             },

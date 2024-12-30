@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'tedarik_olustur_guncelle.dart';
-import 'tedarikler.dart';
+import 'tedarik_icerik.dart'; // Tedarik içeriği ekranını import edin.
+import 'tedarik_olustur.dart';
+import 'paylasilan_tedarikler.dart';
 import 'bildirimler.dart';
 import 'profil.dart';
 
@@ -67,7 +68,9 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final pages = [
       HomeContent(
-          userName: userName, isLoading: _isLoading), // Ana sayfa içeriği
+        userName: userName,
+        isLoading: _isLoading,
+      ), // Ana sayfa içeriği
       TedariklerScreen(), // Tedarikler sayfası
       BildirimlerScreen(), // Bildirimler sayfası
       ProfilScreen(), // Profil sayfası
@@ -85,7 +88,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => TedarikOlusturGuncelleScreen(
-                        onTedarikEkle: _onTedarikEkle),
+                      onTedarikEkle: _onTedarikEkle,
+                    ),
                   ),
                 );
               },
@@ -140,8 +144,7 @@ class _HomeContentState extends State<HomeContent> {
             child: TextField(
               onChanged: (value) {
                 setState(() {
-                  searchQuery =
-                      value.toLowerCase(); // Sorguyu küçük harfe çevir
+                  searchQuery = value.toLowerCase(); // Sorguyu küçük harfe çevir
                 });
               },
               decoration: InputDecoration(
@@ -157,6 +160,7 @@ class _HomeContentState extends State<HomeContent> {
           ),
         ),
       ),
+      
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance.collection('tedarikler').snapshots(),
         builder: (context, snapshot) {
@@ -181,9 +185,9 @@ class _HomeContentState extends State<HomeContent> {
                 child: ListTile(
                   leading: Icon(
                     Icons.inventory, // Kutu simgesi
-                    color: Colors.red, // Kırmızı renk
+                    color: Colors.black, // Kırmızı renk
                   ),
-                  title: RichText(
+                title: RichText(
                     text: TextSpan(
                       children: [
                         TextSpan(
@@ -200,44 +204,65 @@ class _HomeContentState extends State<HomeContent> {
                       ],
                     ),
                   ),
-                  
-                  subtitle: RichText(
-                    text: TextSpan(
-                      children: [
-                        const TextSpan(
-                          text: 'Tedarik Sektörü: ',
-                          style: TextStyle(
-                            color: Colors.red,
-                            fontWeight: FontWeight.bold,
-                          ),
+
+
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      RichText(
+                        text: TextSpan(
+                          children: [
+                            TextSpan(
+                              text: 'Tedarik Sektörü: ',
+                              style: TextStyle(
+                                color: Colors.red,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            TextSpan(
+                              text: tedarik['sektor'],
+                              style: TextStyle(color: Colors.black),
+                            ),
+                          ],
                         ),
-                        TextSpan(
-                          text: tedarik['sektor'],
-                          style: TextStyle(color: Colors.black),
+                      ),
+
+                      
+                      const SizedBox(height: 4), // Biraz boşluk
+                      
+                      RichText(
+                        text: TextSpan(
+                          children: [
+                            TextSpan(
+                              text: 'Ekleyen: ',
+                              style: TextStyle(
+                                color: Colors.red,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            TextSpan(
+                              text: tedarik['ekleyen'], // Ekleyen bilgisi
+                              style: TextStyle(color: Colors.black),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
 
-                  trailing: RichText(
-                    text: TextSpan(
-                      children: [
-                        const TextSpan(
-                          text: 'Ekleyen: ',
-                          style: TextStyle(
-                            color: Colors.red,
-                            fontWeight: FontWeight.bold,
-                          ), 
+                  
+                  trailing: Icon(Icons.arrow_forward, color: Colors.red),
+                  onTap: () {
+                    // Tedarik içeriği ekranına yönlendirme
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => TedarikIcerikScreen(
+                          tedarikId: tedarik.id,
                         ),
-                        TextSpan(
-                          text: tedarik['ekleyen'],
-                          style: TextStyle(color: Colors.black),
-                        )
-                      ],
-                    ),
-                  ),
-                
-                
+                      ),
+                    );
+                  },
                 ),
               );
             },

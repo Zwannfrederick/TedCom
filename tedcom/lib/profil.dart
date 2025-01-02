@@ -2,7 +2,28 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-class ProfilScreen extends StatelessWidget {
+class ProfilScreen extends StatefulWidget {
+  @override
+  _ProfilScreenState createState() => _ProfilScreenState();
+}
+
+class _ProfilScreenState extends State<ProfilScreen> {
+  Future<DocumentSnapshot>? _userDataFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserData();
+  }
+
+  void _fetchUserData() {
+    String uid = FirebaseAuth.instance.currentUser!.uid;
+    setState(() {
+      _userDataFuture =
+          FirebaseFirestore.instance.collection('users').doc(uid).get();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -20,7 +41,7 @@ class ProfilScreen extends StatelessWidget {
         children: [
           // Üstteki Kullanıcı Bilgisi
           Container(
-            //color: const Color.fromARGB(255, 252, 235, 200),
+            width: 500,
             decoration: const BoxDecoration(
               color: Color.fromARGB(255, 252, 235, 200),
               border: Border.symmetric(
@@ -30,8 +51,8 @@ class ProfilScreen extends StatelessWidget {
                 ),
               ),
             ),
-            
-            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 170),
+            padding: const EdgeInsets.symmetric(
+                vertical: 20), // Yatay padding kaldırıldı
             child: Column(
               children: [
                 const Icon(
@@ -41,10 +62,10 @@ class ProfilScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 10),
                 FutureBuilder<DocumentSnapshot>(
-                  future: _getUserData(),
+                  future: _userDataFuture,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const CircularProgressIndicator(); // Yükleniyor animasyonu
+                      return const CircularProgressIndicator();
                     }
                     if (snapshot.hasError) {
                       return const Text('Bir hata oluştu');
@@ -53,8 +74,8 @@ class ProfilScreen extends StatelessWidget {
                       return const Text('Kullanıcı bilgisi bulunamadı');
                     }
 
-                    // Kullanıcı ismini alıyoruz
-                    String userName = snapshot.data!.get('name') ?? 'Bilinmiyor';
+                    String userName =
+                        snapshot.data!.get('name') ?? 'Bilinmiyor';
 
                     return Text(
                       userName,
@@ -63,46 +84,68 @@ class ProfilScreen extends StatelessWidget {
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
+                      textAlign: TextAlign.center, // Merkezi hizalama
+                      maxLines: 1, // Tek satırda kalmasını sağlar
+                      overflow: TextOverflow.ellipsis, // Taşan metni keser
                     );
                   },
                 ),
               ],
             ),
           ),
+
           const Divider(thickness: 1, height: 1),
           // Bilgi Kartları
           Expanded(
-            child: ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                _buildInfoCard(
-                  context,
-                  title: 'E-mail:',
-                  content: FirebaseAuth.instance.currentUser!.email ?? 'Bilinmiyor',
-                ),
-                _buildInfoCard(
-                  context,
-                  title: 'Ana Sektör:',
-                  content: 'Savunma Sanayi UZUN SATIR UZUN SATIR UZUN SATIR UZUN SATIR',
-                ),
+            child: FutureBuilder<DocumentSnapshot>(
+              future: _userDataFuture,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (snapshot.hasError) {
+                  return const Center(child: Text('Bir hata oluştu'));
+                }
+                if (!snapshot.hasData || !snapshot.data!.exists) {
+                  return const Center(
+                      child: Text('Kullanıcı bilgisi bulunamadı'));
+                }
 
-                // BAŞLANGIÇTA BU BİLGİLER BOŞ OLACAK KAYIT OLUNDUKTAN SONRA KULLANICIDAN OPSİYONEL OLARAK ALINARAK VERİ TABANINA KAYDEDİLECEK??
-                _buildInfoCard(
-                  context,
-                  title: 'Telefon Numarası:',
-                  content: '(0598) 765 43 21',
-                ),
-                _buildInfoCard(
-                  context,
-                  title: 'Doğum Tarihi:',
-                  content: '4 Ekim 2004',
-                ),
-                _buildInfoCard(
-                  context,
-                  title: 'Doğum Yeri:',
-                  content: 'İstanbul',
-                ),
-              ],
+                Map<String, dynamic> userData =
+                    snapshot.data!.data() as Map<String, dynamic>;
+
+                return ListView(
+                  padding: const EdgeInsets.all(16),
+                  children: [
+                    _buildInfoCard(
+                      context,
+                      title: 'E-mail:',
+                      content: FirebaseAuth.instance.currentUser!.email ??
+                          'Bilinmiyor',
+                    ),
+                    _buildInfoCard(
+                      context,
+                      title: 'Ana Sektör:',
+                      content: userData['anaSektör'] ?? '',
+                    ),
+                    _buildInfoCard(
+                      context,
+                      title: 'Telefon Numarası:',
+                      content: userData['telefonNo'] ?? '',
+                    ),
+                    _buildInfoCard(
+                      context,
+                      title: 'Doğum Tarihi:',
+                      content: userData['dogumTarihi'] ?? '',
+                    ),
+                    _buildInfoCard(
+                      context,
+                      title: 'Doğum Yeri:',
+                      content: userData['dogumYeri'] ?? '',
+                    ),
+                  ],
+                );
+              },
             ),
           ),
         ],
@@ -110,12 +153,8 @@ class ProfilScreen extends StatelessWidget {
     );
   }
 
-  Future<DocumentSnapshot> _getUserData() async {
-    String uid = FirebaseAuth.instance.currentUser!.uid;
-    return await FirebaseFirestore.instance.collection('users').doc(uid).get();
-  }
-
-  Widget _buildInfoCard(BuildContext context, {required String title, required String content}) {
+  Widget _buildInfoCard(BuildContext context,
+      {required String title, required String content}) {
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8),
       color: const Color.fromARGB(255, 252, 235, 200),
@@ -174,9 +213,45 @@ class ProfilScreen extends StatelessWidget {
             child: const Text('İptal'),
           ),
           TextButton(
-            onPressed: () {
-              print('Yeni $title: ${_controller.text}');
-              Navigator.pop(context);
+            onPressed: () async {
+              try {
+                String fieldToUpdate;
+                switch (title) {
+                  case 'Ana Sektör:':
+                    fieldToUpdate = 'anaSektör';
+                    break;
+                  case 'Telefon Numarası:':
+                    fieldToUpdate = 'telefonNo';
+                    break;
+                  case 'Doğum Tarihi:':
+                    fieldToUpdate = 'dogumTarihi';
+                    break;
+                  case 'Doğum Yeri:':
+                    fieldToUpdate = 'dogumYeri';
+                    break;
+                  default:
+                    throw Exception('Geçersiz alan');
+                }
+
+                String uid = FirebaseAuth.instance.currentUser!.uid;
+                await FirebaseFirestore.instance
+                    .collection('users')
+                    .doc(uid)
+                    .update({fieldToUpdate: _controller.text});
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('$title başarıyla güncellendi')),
+                );
+
+                Navigator.pop(context);
+
+                // Güncellenmiş veriyi yeniden al
+                _fetchUserData();
+              } catch (error) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Güncelleme başarısız: $error')),
+                );
+              }
             },
             child: const Text('Kaydet'),
           ),

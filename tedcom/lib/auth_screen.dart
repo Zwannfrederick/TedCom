@@ -15,6 +15,7 @@ class AuthScreenState extends State<AuthScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset:true, // Klavye açıldığında otomatik olarak alt boşluğu ayarlar.
       body: Stack(
         children: [
           // Arka plan resmi
@@ -25,132 +26,129 @@ class AuthScreenState extends State<AuthScreen> {
             ),
           ),
           Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                SizedBox(height: 80),
-
-                // ÜSTTEKİ "TEDCOM YAZISI"
-                Text(
-                  'Tedcom',
-                  style: GoogleFonts.rosario(
-                    fontSize: 50,
-                    fontWeight: FontWeight.normal,
-                    color: Colors.white,
-                    shadows: [
-                      Shadow(
-                        blurRadius: 10,
-                        color: Colors.black.withOpacity(0.5),
-                        offset: Offset(4, 4),
-                      ),
-                    ],
+            child: SingleChildScrollView(
+              padding: EdgeInsets.only(bottom: 35),
+              // Klavyeden dolayı taşma sorununu önler.
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  // Üstteki "Tedcom" yazısı
+                  Text(
+                    'Tedcom',
+                    style: GoogleFonts.rosario(
+                      fontSize: 50,
+                      fontWeight: FontWeight.normal,
+                      color: Colors.white,
+                      shadows: [
+                        Shadow(
+                          blurRadius: 10,
+                          color: Colors.black.withOpacity(0.5),
+                          offset: Offset(4, 4),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
 
-                SizedBox(height: 20),
+                  SizedBox(height: 20),
 
-                // Beyaz kutu içinde form
-                Container(
-                  padding: EdgeInsets.all(20),
-                  margin: EdgeInsets.symmetric(horizontal: 30),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Column(
-                    children: [
-                      // Log In ve Sign Up düğmelerinin bulunduğu alan
-                      Stack(
-                        children: [
-                          // Üstteki kırmızı ve beyaz çubuklar
-                          Container(
-                            width: 320,
-                            height: 54,
-                            decoration: BoxDecoration(
-                              color: Color.fromARGB(146, 236, 187, 187),
-                              borderRadius: BorderRadius.circular(25),
-                              border: Border.all(
-                                color: Colors.red,
-                                width: 2,
-                              )
+                  // Beyaz kutu içinde form
+                  Container(
+                    padding: EdgeInsets.all(20),
+                    margin: EdgeInsets.symmetric(horizontal: 30),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Column(
+                      children: [
+                        // Log In ve Sign Up düğmelerinin bulunduğu alan
+                        Stack(
+                          children: [
+                            // Üstteki kırmızı ve beyaz çubuklar
+                            Container(
+                              width: 320,
+                              height: 54,
+                              decoration: BoxDecoration(
+                                  color: Color.fromARGB(146, 236, 187, 187),
+                                  borderRadius: BorderRadius.circular(25),
+                                  border: Border.all(
+                                    color: Colors.red,
+                                    width: 2,
+                                  )),
+                              child: Stack(
+                                children: [
+                                  AnimatedPositioned(
+                                    duration: const Duration(milliseconds: 300),
+                                    left: isLogin ? -2 : 150,
+                                    child: Container(
+                                      width: 160,
+                                      height: 50,
+                                      decoration: BoxDecoration(
+                                        color: Colors.red.shade900,
+                                        borderRadius: BorderRadius.circular(30),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
 
-                            child: Stack(
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                AnimatedPositioned(
-                                  duration: const Duration(milliseconds: 300),
-                                  left: isLogin
-                                      ? -2
-                                      : 150,
-                                  child: Container(
-                                    width: 160,
-                                    height: 50,
-                                    decoration: BoxDecoration(
-                                      color: Colors.red.shade900,
-                                      borderRadius: BorderRadius.circular(30),
+                                // Log In ve Sign Up düğmeleri
+                                TextButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      isLogin = true;
+                                    });
+                                  },
+                                  child: Text(
+                                    'Log In',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: isLogin
+                                          ? Colors.white
+                                          : Colors.red.shade600,
+                                    ),
+                                  ),
+                                ),
+
+                                SizedBox(width: 70, height: 50),
+
+                                TextButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      isLogin = false;
+                                    });
+                                  },
+                                  child: Text(
+                                    'Sign Up',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: isLogin
+                                          ? Colors.red.shade700
+                                          : Colors.white,
                                     ),
                                   ),
                                 ),
                               ],
                             ),
-                          ),
+                          ],
+                        ),
 
+                        // Formu gösteren widget
+                        SizedBox(height: 20),
 
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              // Log In ve Sign Up düğmeleri
-                              TextButton(
-                                onPressed: () {
-                                  setState(() {
-                                    isLogin = true;
-                                  });
-                                },
-                                child: Text(
-                                  'Log In',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: isLogin
-                                        ? Colors.white
-                                        : Colors.red.shade600,
-                                  ),
-                                ),
-                              ),
-
-                              SizedBox(width: 70, height: 50),
-                              
-                              TextButton(
-                                onPressed: () {
-                                  setState(() {
-                                    isLogin = false;
-                                  });
-                                },
-                                child: Text(
-                                  'Sign Up',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: isLogin
-                                        ? Colors.red.shade700
-                                        : Colors.white,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-
-                      // Formu gösteren widget
-                      SizedBox(height: 20),
-                      
-                      AnimatedSwitcher(
-                        duration: Duration(milliseconds: 300),
-                        child: isLogin ? LoginForm() : SignUpForm(),
-                      ),
-                    ],
+                        AnimatedSwitcher(
+                          duration: Duration(milliseconds: 300),
+                          child: isLogin ? LoginForm() : SignUpForm(),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ],
@@ -248,8 +246,8 @@ class _SignUpFormState extends State<SignUpForm> {
     }
     try {
       // Kullanıcıyı Firebase Authentication'a kaydet
-      UserCredential userCredential = await FirebaseAuth.instance
-          .createUserWithEmailAndPassword(
+      UserCredential userCredential =
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
@@ -262,6 +260,10 @@ class _SignUpFormState extends State<SignUpForm> {
         'name': _nameController.text.trim(), // İsim ve soy isim
         'email': _emailController.text.trim(), // E-posta
         'createdAt': DateTime.now(), // Oluşturulma tarihi
+        'anaSektör': '', // Başlangıçta boş değer
+        'telefonNo': '', // Başlangıçta boş değer
+        'dogumTarihi': '', // Başlangıçta boş değer
+        'dogumYeri': '', // Başlangıçta boş değer
       });
 
       Navigator.push(

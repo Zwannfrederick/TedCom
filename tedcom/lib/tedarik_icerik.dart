@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'profil_ziyaret.dart';
 
 class TedarikIcerikScreen extends StatelessWidget {
   final String tedarikId; // İlgili tedariğin ID'si
@@ -124,12 +125,14 @@ class TedarikIcerikScreen extends StatelessWidget {
                       return ListTile(
                         title: Text('Ek ${index + 1}'),
                         subtitle: Text(ekler[index]),
-                        leading: const Icon(Icons.attach_file, color: Colors.red),
+                        leading:
+                            const Icon(Icons.attach_file, color: Colors.red),
                       );
                     },
                   ),
                 const Divider(height: 24),
 
+                // Başvurular
                 // Başvurular
                 Text(
                   'Başvurular',
@@ -148,11 +151,37 @@ class TedarikIcerikScreen extends StatelessWidget {
                     itemCount: basvurular.length,
                     itemBuilder: (context, index) {
                       return ListTile(
+                        // Burada return yapmayı unutmamalısınız.
                         leading: const Icon(Icons.person, color: Colors.red),
                         title: Text(basvurular[index]),
+                        onTap: () async {
+                          final userSnapshot = await FirebaseFirestore.instance
+                              .collection('users')
+                              .where('name', isEqualTo: basvurular[index])
+                              .get();
+
+                          if (userSnapshot.docs.isNotEmpty) {
+                            final visitedUserId = userSnapshot.docs.first.id;
+
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ProfilZiyaretScreen(
+                                    visitedUserId: visitedUserId),
+                              ),
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content:
+                                      Text('Kullanıcı bilgisi bulunamadı')),
+                            );
+                          }
+                        },
                       );
                     },
                   ),
+
                 const SizedBox(height: 24),
 
                 // Başvuru yap butonu

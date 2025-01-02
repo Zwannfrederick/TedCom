@@ -78,7 +78,7 @@ class _TedariklerScreenState extends State<TedariklerScreen> {
                   child: StreamBuilder<QuerySnapshot>(
                     stream: FirebaseFirestore.instance
                         .collection('tedarikler')
-                        .where('ekleyen', isEqualTo: currentUserName)
+                        .where('tedarikSahibi', isEqualTo: currentUserName)
                         .snapshots(),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
@@ -112,103 +112,107 @@ class _TedariklerScreenState extends State<TedariklerScreen> {
                         itemBuilder: (context, index) {
                           final tedarik = tedarikler[index];
                           return Card(
-                            child: ListTile(
-                              leading: const Icon(
-                                Icons.inventory, // Kutu simgesi
-                                color: Colors.green, // Yeşil renk
-                              ),
-                              title: RichText(
-                                text: TextSpan(
-                                  children: [
-                                    const TextSpan(
-                                      text: 'Tedarik İsmi: ',
-                                      style: TextStyle(
-                                        color: Colors.red,
-                                        fontWeight: FontWeight.bold,
+                            margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                            elevation: 3,
+                            child: Container(
+                              height: 70, // Yükseklik
+                              padding:
+                                  const EdgeInsets.only(top: 10,right: 5,left: 5), // Kenar boşlukları
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  const Icon(
+                                    Icons.inventory, // Kutu simgesi
+                                    color: Colors.green, // Yeşil renk
+                                    size: 30,
+                                  ),
+                                  const SizedBox(width: 16),
+                                  Expanded(
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        RichText(
+                                          text: TextSpan(
+                                            children: [
+                                              const TextSpan(
+                                                text: 'Tedarik İsmi: ',
+                                                style: TextStyle(
+                                                  color: Colors.red,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                              TextSpan(
+                                                text: tedarik['isim'],
+                                                style: const TextStyle(
+                                                    color: Colors.black),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        RichText(
+                                          text: TextSpan(
+                                            children: [
+                                              const TextSpan(
+                                                text: 'Sektör: ',
+                                                style: TextStyle(
+                                                  color: Colors.red,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                              TextSpan(
+                                                text: tedarik['sektor'],
+                                                style: const TextStyle(
+                                                    color: Colors.black),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        const SizedBox(height: 8),
+                                      ],
+                                    ),
+                                  ),
+                                  Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      IconButton(
+                                        icon: const Icon(Icons.edit,
+                                            color: Colors.red),
+                                        onPressed: () {
+                                          // Tedarik Güncelle sayfasına geçiş
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  TedarikGuncelleScreen(
+                                                tedarikId: tedarik.id,
+                                                tedarikData: tedarik.data()
+                                                    as Map<String, dynamic>,
+                                              ),
+                                            ),
+                                          );
+                                        },
                                       ),
-                                    ),
-                                    TextSpan(
-                                      text: tedarik['isim'],
-                                      style: const TextStyle(color: Colors.black),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              subtitle: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  RichText(
-                                    text: TextSpan(
-                                      children: [
-                                        const TextSpan(
-                                          text: 'Tedarik Sektörü: ',
-                                          style: TextStyle(
-                                            color: Colors.red,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        TextSpan(
-                                          text: tedarik['sektor'],
-                                          style: const TextStyle(color: Colors.black),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4), // Biraz boşluk
-                                  RichText(
-                                    text: TextSpan(
-                                      children: [
-                                        const TextSpan(
-                                          text: 'Ekleyen: ',
-                                          style: TextStyle(
-                                            color: Colors.red,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        TextSpan(
-                                          text: tedarik['ekleyen'], // Ekleyen bilgisi
-                                          style: const TextStyle(color: Colors.black),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              trailing: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  IconButton(
-                                    icon: const Icon(Icons.edit, color: Colors.red),
-                                    onPressed: () {
-                                      // Tedarik Güncelle sayfasına geçiş
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              TedarikGuncelleScreen(
-                                            tedarikId: tedarik.id,
-                                            tedarikData: tedarik.data()
-                                                as Map<String, dynamic>,
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(Icons.info_outline,
-                                        color: Colors.blue),
-                                    onPressed: () {
-                                      // Tedarik içeriği ekranına yönlendirme
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              TedarikIcerikScreen(
-                                            tedarikId: tedarik.id,
-                                          ),
-                                        ),
-                                      );
-                                    },
+                                      IconButton(
+                                        icon: const Icon(Icons.info_outline,
+                                            color: Colors.blue, size: 24),
+                                        onPressed: () {
+                                          // Tedarik içeriği ekranına yönlendirme
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  TedarikIcerikScreen(
+                                                tedarikId: tedarik.id,
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),

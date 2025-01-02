@@ -49,7 +49,7 @@ class _HomeScreenState extends State<HomeScreen> {
       'isim': yeniTedarik['isim'],
       'sektor': yeniTedarik['sektor'],
       'aciklama': yeniTedarik['aciklama'],
-      'ekleyen': userName ?? 'Bilinmeyen',
+      'tedarikSahibi': userName ?? 'Bilinmeyen',
       'tarih': DateTime.now(),
     }).then((_) {
       print('Tedarik başarıyla Firestore\'a eklendi.');
@@ -87,7 +87,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => TedarikOlusturGuncelleScreen(
+                    builder: (context) => TedarikOlusturScreen(
                       onTedarikEkle: _onTedarikEkle,
                     ),
                   ),
@@ -144,7 +144,8 @@ class _HomeContentState extends State<HomeContent> {
             child: TextField(
               onChanged: (value) {
                 setState(() {
-                  searchQuery = value.toLowerCase(); // Sorguyu küçük harfe çevir
+                  searchQuery =
+                      value.toLowerCase(); // Sorguyu küçük harfe çevir
                 });
               },
               decoration: InputDecoration(
@@ -182,87 +183,106 @@ class _HomeContentState extends State<HomeContent> {
             itemBuilder: (context, index) {
               final tedarik = tedarikler[index];
               return Card(
-                child: ListTile(
-                  leading: Icon(
-                    Icons.inventory, // Kutu simgesi
-                    color: Colors.black, // Kırmızı renk
-                  ),
-                title: RichText(
-                    text: TextSpan(
-                      children: [
-                        TextSpan(
-                          text: 'Tedarik İsmi: ',
-                          style: TextStyle(
-                            color: Colors.red,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        TextSpan(
-                          text: tedarik['isim'],
-                          style: TextStyle(color: Colors.black),
-                        ),
-                      ],
-                    ),
-                  ),
-
-
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                elevation: 3,
+                child: Container(
+                  height: 80, // Kartın yüksekliği
+                  padding: const EdgeInsets.all(8.0), // Kenar boşlukları
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      RichText(
-                        text: TextSpan(
+                      // İkon
+                      const Icon(
+                        Icons.inventory, // Kutu simgesi
+                        color: Colors.black,
+                        size: 30, // Kutu ikonu boyutu 
+                      ),
+                      const SizedBox(width: 16), // İkon ve metin arasına boşluk
+                      // Yazılar
+                      Expanded(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            TextSpan(
-                              text: 'Tedarik Sektörü: ',
-                              style: TextStyle(
-                                color: Colors.red,
-                                fontWeight: FontWeight.bold,
+                            // Başlık
+                            RichText(
+                              text: TextSpan(
+                                children: [
+                                  const TextSpan(
+                                    text: 'Tedarik İsmi: ',
+                                    style: TextStyle(
+                                      color: Colors.red,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: tedarik['isim'],
+                                    style: const TextStyle(color: Colors.black),
+                                  ),
+                                ],
                               ),
                             ),
-                            TextSpan(
-                              text: tedarik['sektor'],
-                              style: TextStyle(color: Colors.black),
+                            const SizedBox(height: 8), // Metinler arasında boşluk
+                            // Alt başlık
+                            RichText(
+                              text: TextSpan(
+                                children: [
+                                  const TextSpan(
+                                    text: 'Sektör: ',
+                                    style: TextStyle(
+                                      color: Colors.red,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: tedarik['sektor'],
+                                    style: const TextStyle(color: Colors.black),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 8), // Metinler arasında boşluk
+                            // Tedarik Sahibi bilgisi
+                            RichText(
+                              text: TextSpan(
+                                children: [
+                                  const TextSpan(
+                                    text: 'Oluşturan: ',
+                                    style: TextStyle(
+                                      color: Colors.red,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: tedarik['tedarikSahibi'],
+                                    style: const TextStyle(color: Colors.black),
+                                  ),
+                                ],
+                              ),
                             ),
                           ],
                         ),
                       ),
-
-                      
-                      const SizedBox(height: 4), // Biraz boşluk
-                      
-                      RichText(
-                        text: TextSpan(
-                          children: [
-                            TextSpan(
-                              text: 'Ekleyen: ',
-                              style: TextStyle(
-                                color: Colors.red,
-                                fontWeight: FontWeight.bold,
+                      const SizedBox(
+                          width: 16), // Metin ve ok ikonu arasında boşluk
+                      // Ok ikonu
+                      IconButton(
+                        icon:
+                            const Icon(Icons.info_outline, color: Colors.red,size: 24),
+                        onPressed: () {
+                          // Tedarik içeriği ekranına yönlendirme
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => TedarikIcerikScreen(
+                                tedarikId: tedarik.id,
                               ),
                             ),
-                            TextSpan(
-                              text: tedarik['ekleyen'], // Ekleyen bilgisi
-                              style: TextStyle(color: Colors.black),
-                            ),
-                          ],
-                        ),
+                          );
+                        },
                       ),
                     ],
                   ),
-
-                  
-                  trailing: Icon(Icons.arrow_forward, color: Colors.red),
-                  onTap: () {
-                    // Tedarik içeriği ekranına yönlendirme
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => TedarikIcerikScreen(
-                          tedarikId: tedarik.id,
-                        ),
-                      ),
-                    );
-                  },
                 ),
               );
             },

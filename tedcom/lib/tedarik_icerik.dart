@@ -54,7 +54,7 @@ class TedarikIcerikScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  tedarik['ekleyen'] ?? 'Bilinmeyen',
+                  tedarik['tedarikSahibi'] ?? 'Bilinmeyen',
                   style: const TextStyle(fontSize: 16),
                 ),
                 const Divider(height: 24),
@@ -169,7 +169,7 @@ class TedarikIcerikScreen extends StatelessWidget {
                           final userName = doc['name'];
 
                           // Kullanıcı kendi tedariğine başvurmaya çalışıyorsa
-                          if (tedarik['ekleyen'] == userName) {
+                          if (tedarik['tedarikSahibi'] == userName) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
                                   content: Text(
